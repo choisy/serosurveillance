@@ -426,7 +426,7 @@ idn &lt;- readRDS(&quot;gadm36_IDN_1_sf.rds&quot;)</code></pre>
   read.table(TRUE, &quot;\t&quot;) %$%
   setNames(HASC, ISO)</code></pre>
 <pre class="r"><code>proj &lt;- st_crs(vnm)</code></pre>
-<pre class="r"><code>vnm_sites &lt;- &quot;hospitals VN.txt&quot; %&gt;%
+<pre class="r"><code>vnm_sites &lt;- &quot;hospitals VNM.txt&quot; %&gt;%
   read.table(sep = &quot;\t&quot;) %&gt;% 
   setNames(&quot;a&quot;) %&gt;% 
   mutate_at(&quot;a&quot;, ~ trimws(str_remove_all(tolower(.x), &quot;[a-z]|\\(|\\)&quot;))) %&gt;% 

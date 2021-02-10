@@ -74,7 +74,7 @@ proj <- st_crs(vnm)
 ```
 
 ```{r}
-vnm_sites <- "hospitals VN.txt" %>%
+vnm_sites <- "hospitals VNM.txt" %>%
   read.table(sep = "\t") %>% 
   setNames("a") %>% 
   mutate_at("a", ~ trimws(str_remove_all(tolower(.x), "[a-z]|\\(|\\)"))) %>% 
