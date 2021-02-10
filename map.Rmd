@@ -1,0 +1,196 @@
+---
+title: "Map of serosurveillance sites"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+                      fig.retina = 2, fig.align = "center", fig.height = 7.010417)
+```
+
+## Packages
+
+```{r}
+library(sf)
+library(magrittr)
+library(stringr)
+library(purrr)
+library(dplyr)
+```
+
+## Functions
+
+```{r}
+get_table <- function(url) {
+  url %>% 
+    httr::GET() %>% 
+    httr::content("text") %>% 
+    XML::readHTMLTable()
+}
+```
+
+```{r}
+discretize <- function(x, breaks) {
+  x %>% 
+    cut(breaks, include.lowest = TRUE) %>% 
+    as.integer()
+}
+```
+
+```{r}
+add_gadm <- function(x) {
+  x %>% 
+    st_geometry() %>% 
+    plot(add = TRUE, col = x$color, lwd = .1)
+}
+```
+
+## Data
+
+```{r eval = FALSE}
+download.file("https://biogeo.ucdavis.edu/data/gadm3.6/Rsf/gadm36_VNM_1_sf.rds", "gadm36_VNM_1_sf.rds")
+download.file("https://biogeo.ucdavis.edu/data/gadm3.6/Rsf/gadm36_IDN_1_sf.rds", "gadm36_IDN_1_sf.rds")
+```
+
+```{r}
+vnm <- readRDS("gadm36_VNM_1_sf.rds")
+idn <- readRDS("gadm36_IDN_1_sf.rds")
+```
+
+```{r}
+worldmap <- st_as_sf(rworldmap::getMap(resolution = "low"))
+```
+
+```{r}
+dict_indo <- "indonesia_codes.txt" %>%
+  read.table(TRUE, "\t") %$%
+  setNames(HASC, ISO)
+```
+
+```{r}
+proj <- st_crs(vnm)
+```
+
+```{r}
+vnm_sites <- "hospitals VN.txt" %>%
+  read.table(sep = "\t") %>% 
+  setNames("a") %>% 
+  mutate_at("a", ~ trimws(str_remove_all(tolower(.x), "[a-z]|\\(|\\)"))) %>% 
+  tidyr::separate(a, c("y", "x"), sep = ",") %>% 
+  mutate_all(as.numeric) %>% 
+  st_as_sf(coords = c("x", "y"), crs = proj)
+```
+
+```{r}
+idn_sites <- "hospitals IDN.txt" %>%
+  read.table(sep = ",") %>% 
+  st_as_sf(coords = c("V2", "V1"), crs = proj)
+```
+
+```{r}
+idn_table <- "https://en.wikipedia.org/wiki/Provinces_of_Indonesia#Table_of_provinces" %>%
+  get_table() %>% 
+  extract(3) %>%
+  extract2(1) %>%
+  extract(c("V4", "V8")) %>% 
+  extract(-1, ) %>% 
+  setNames(c("HASC_1", "density")) %>% 
+  mutate(HASC_1 = HASC_1 %>%
+           str_remove_all("\\[|\\]|\\d") %>% 
+           str_replace(".*-", "") %>% 
+           extract(dict_indo, .),
+         density  = 1.134 * as.numeric(str_remove(density, ",")))
+```
+
+```{r}
+vnm_table <- "https://en.wikipedia.org/wiki/Provinces_of_Vietnam#List_and_statistics" %>%
+  get_table() %>% 
+  extract2(5) %>%
+  extract(c("V1", "V6")) %>%
+  extract(-1, ) %>% 
+  setNames(c("NAME_1", "density")) %>% 
+  mutate(NAME_1 = NAME_1 %>%
+           str_remove_all(" Province| City") %>% 
+           trimws() %>% 
+           str_replace("n-H", "n H") %>% 
+           str_replace("-", " - ") %>% 
+           str_replace("Hòa Bình", "Hoà Bình"),
+         density  = as.numeric(str_remove(density, ",")))
+```
+
+## Map
+
+```{r}
+idn %<>% left_join(idn_table, "HASC_1")
+vnm %<>% left_join(vnm_table, "NAME_1")
+```
+
+```{r}
+sea <- worldmap %>% 
+  filter(GBD == "Asia, Southeast") %>% 
+  filter(! SOVEREIGNT %in% c("Sri Lanka", "Maldives", "Mauritius", "Seychelles"))
+```
+
+```{r}
+nb_col <- 6
+```
+
+```{r}
+rgb2 <- function(...) rgb(..., maxColorValue = 255)
+blue <- rgb2(229, 246, 252)
+grey <- rgb2(218, 218, 218)
+prov <- RColorBrewer::brewer.pal(nb_col, "YlOrRd")
+```
+
+```{r}
+# breaks <- quantile(c(idn$density, vnm$density), seq(0, 1, le = nb_col + 1))
+breaks <- c(0, 80, 120, 215, 400, 900, 15000)
+```
+
+```{r}
+vnm %<>% mutate(color = prov[discretize(density, breaks)])
+idn %<>% mutate(color = prov[discretize(density, breaks)])
+```
+
+```{r}
+bb <- st_bbox(sea)
+```
+
+```{r fig.width = 7.739583}
+lwd <- .1
+
+sea %>% 
+  st_geometry() %>% 
+  plot(xlim = bb[c(1, 3)], ylim = bb[c(2, 4)], xaxs = "i", yaxs = "i")
+
+rect(-180, -90, 180, 90, col = blue)
+
+worldmap %>% 
+  st_geometry() %>% 
+  plot(xlim = bb[c(1, 3)], ylim = bb[c(2, 4)], col = grey, add = TRUE)
+
+add_gadm(vnm)
+
+add_gadm(st_simplify(idn, FALSE, .05))
+
+worldmap %>%
+  filter(ADMIN %in% c("Indonesia", "Vietnam")) %>% 
+  st_geometry() %>% 
+  plot(add = TRUE)
+
+plot(vnm_sites, col = adjustcolor("green", .7), pch = 19, add = TRUE)
+plot(idn_sites, col = adjustcolor("green", .7), pch = 19, add = TRUE)
+
+plot(vnm_sites, col = "darkgreen", add = TRUE)
+plot(idn_sites, col = "darkgreen", add = TRUE)
+
+box(bty = "o")
+```
+
+```{r fig.width = 2.458333}
+image(t(matrix(6:1)), col = prov, axes = FALSE)
+box(bty = "o")
+```
+
