@@ -1,0 +1,36 @@
+# source: http://www.statoids.com/uid.html
+Province	HASC	ISO	GEC	Code	Postcode	Tz	Population	Area(km.²)	Area(mi.²)	Capital	Reg
+Aceh	ID.AC	AC	ID01	11	23-24	+7	4,494,410	51,937	20,053	Banda Aceh	SM
+Bali	ID.BA	BA	ID02	51	80-82	+8	3,890,757	5,633	2,175	Denpasar	NU
+Bangka-Belitung	ID.BB	BB	ID35	19	33	+7	1,223,296	16,171	6,244	Pangkalpinang	SM
+Banten	ID.BT	BT	ID33	36	15,42	+7	10,632,166	8,651	3,340	Serang	JW
+Bengkulu	ID.BE	BE	ID03	17	38-39	+7	1,715,518	19,789	7,641	Bengkulu	SM
+Gorontalo	ID.GO	GO	ID34	75	96	+8	1,040,164	12,215	4,716	Gorontalo	SL
+Jakarta Raya	ID.JK	JK	ID04	31	10-14	+7	9,607,787	664	256	Jakarta	JW
+Jambi	ID.JA	JA	ID05	15	36-37	+7	3,092,265	53,437	20,632	Jambi (Telanaipura)	SM
+Jawa Barat	ID.JR	JB	ID30	32	16-17,40-46	+7	43,053,732	34,597	13,358	Bandung	JW
+Jawa Tengah	ID.JT	JT	ID07	33	50-54,56-59	+7	32,382,657	32,549	12,567	Semarang	JW
+Jawa Timur	ID.JI	JI	ID08	35	60-69	+7	37,476,757	47,922	18,503	Surabaya	JW
+Kalimantan Barat	ID.KB	KB	ID11	61	78-79	+7	4,395,983	146,807	56,682	Pontianak	KA
+Kalimantan Selatan	ID.KS	KS	ID12	63	70-72	+8	3,626,616	43,546	16,813	Banjarmasin	KA
+Kalimantan Tengah	ID.KT	KT	ID13	62	73-74	+7	2,212,089	153,564	59,291	Palangkaraya	KA
+Kalimantan Timur	ID.KM	KI	ID14	64	75-77	+8	3,553,143	230,277	88,910	Samarinda	KA
+Kalimantan Utara	ID.KU	KU	ID42	65	75-77	+8				Tanjung Selor	KA
+Kepulauan Riau	ID.KR	KR	ID40	21	28-29	+7	1,679,163	 	 	Tanjung Pinang	SM
+Lampung	ID.LA	LA	ID15	18	34-35	+7	7,608,405	35,384	13,662	Bandar Lampung	SM
+Maluku	ID.MA	MA	ID28	81	97	+9	1,533,506	46,975	18,137	Ambon	ML
+Maluku Utara	ID.MU	MU	ID29	82	97	+9	1,038,087	30,895	11,929	Sofifi	ML
+Nusa Tenggara Barat	ID.NB	NB	ID17	52	83-84	+8	4,500,212	20,153	7,781	Mataram	NU
+Nusa Tenggara Timur	ID.NT	NT	ID18	53	85-87	+8	4,683,827	47,351	18,282	Kupang	NU
+Papua	ID.PA	PA	ID36	94	98-99	+9	2,833,381	365,466	141,107	Jayapura	PP
+Papua Barat	ID.IB	PB	ID39	91	98	+9	760,422	 	 	Manokwari	PP
+Riau	ID.RI	RI	ID37	14	28-29	+7	5,538,367	94,560	36,510	Pekanbaru	SM
+Sulawesi Barat	ID.SR	SR	ID41	76	91	+8	1,158,651	 	 	Mamuju	SL
+Sulawesi Selatan	ID.SE	SN	ID38	73	90-92	+8	8,034,776	62,365	24,079	Makassar	SL
+Sulawesi Tengah	ID.ST	ST	ID21	72	94	+8	2,635,009	63,678	24,586	Palu	SL
+Sulawesi Tenggara	ID.SG	SG	ID22	74	93	+8	2,232,586	38,140	14,726	Kendari	SL
+Sulawesi Utara	ID.SW	SA	ID31	71	95	+8	2,270,596	15,273	5,897	Manado	SL
+Sumatera Barat	ID.SB	SB	ID24	13	25-27	+7	4,846,909	42,899	16,563	Padang	SM
+Sumatera Selatan	ID.SL	SS	ID32	16	30-32	+7	7,450,394	93,083	35,940	Palembang	SM
+Sumatera Utara	ID.SU	SU	ID26	12	20-22	+7	12,982,204	73,587	28,412	Medan	SM
+Yogyakarta	ID.YO	YO	ID10	34	55	+7	3,457,491	3,186	1,230	Yogyakarta	JW
