@@ -64,9 +64,15 @@ worldmap <- st_as_sf(rworldmap::getMap(resolution = "low"))
 ```
 
 ```{r}
-dict_indo <- "indonesia_codes.txt" %>%
-  read.table(TRUE, "\t") %$%
-  setNames(HASC, ISO)
+#statoids <- "indonesia_codes.txt" %>%
+#  read.table(TRUE, "\t") %$%
+#  setNames(HASC, ISO)
+```
+
+```{r}
+statoids <- XML::readHTMLTable("http://www.statoids.com/uid.html")[[2]]
+names(statoids) <- trimws(names(statoids))
+statoids <- na.exclude(with(statoids, setNames(HASC, ISO)))
 ```
 
 ```{r}
@@ -100,7 +106,7 @@ idn_table <- "https://en.wikipedia.org/wiki/Provinces_of_Indonesia#Table_of_prov
   mutate(HASC_1 = HASC_1 %>%
            str_remove_all("\\[|\\]|\\d") %>% 
            str_replace(".*-", "") %>% 
-           extract(dict_indo, .),
+           extract(statoids, .),
          density  = 1.134 * as.numeric(str_remove(density, ",")))
 ```
 
@@ -172,7 +178,6 @@ worldmap %>%
   plot(xlim = bb[c(1, 3)], ylim = bb[c(2, 4)], col = grey, add = TRUE)
 
 add_gadm(vnm)
-
 add_gadm(st_simplify(idn, FALSE, .05))
 
 worldmap %>%
@@ -190,7 +195,7 @@ box(bty = "o")
 ```
 
 ```{r fig.width = 2.458333}
-image(t(matrix(6:1)), col = prov, axes = FALSE)
+image(t(matrix(length(prov):1)), col = prov, axes = FALSE)
 box(bty = "o")
 ```
 
