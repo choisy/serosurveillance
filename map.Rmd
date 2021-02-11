@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
 
 ## Packages
 
+The needed packages:
+
 ```{r}
 library(sf)
 library(magrittr)
@@ -22,6 +24,8 @@ library(dplyr)
 
 ## Functions
 
+The following function retrieves the tables from an URL (typically a wikipedia page):
+
 ```{r}
 get_table <- function(url) {
   url %>% 
@@ -31,6 +35,8 @@ get_table <- function(url) {
 }
 ```
 
+The following function transform a continuous variable into a categorical one:
+
 ```{r}
 discretize <- function(x, breaks) {
   x %>% 
@@ -38,6 +44,8 @@ discretize <- function(x, breaks) {
     as.integer()
 }
 ```
+
+The following function adds the provinces of a country to an already existing map:
 
 ```{r}
 add_gadm <- function(x) {
@@ -49,19 +57,27 @@ add_gadm <- function(x) {
 
 ## Data
 
+Downloading the province map for Vietnam and Indonesia:
+
 ```{r eval = FALSE}
 download.file("https://biogeo.ucdavis.edu/data/gadm3.6/Rsf/gadm36_VNM_1_sf.rds", "gadm36_VNM_1_sf.rds")
 download.file("https://biogeo.ucdavis.edu/data/gadm3.6/Rsf/gadm36_IDN_1_sf.rds", "gadm36_IDN_1_sf.rds")
 ```
+
+Loading these maps:
 
 ```{r}
 vnm <- readRDS("gadm36_VNM_1_sf.rds")
 idn <- readRDS("gadm36_IDN_1_sf.rds")
 ```
 
+Retrieving the world map:
+
 ```{r}
 worldmap <- st_as_sf(rworldmap::getMap(resolution = "low"))
 ```
+
+Retrieving province codes for Indonesia from [Statoids](http://www.statoids.com):
 
 ```{r}
 statoids <- XML::readHTMLTable("http://www.statoids.com/uid.html")[[2]]
@@ -69,9 +85,13 @@ names(statoids) <- trimws(names(statoids))
 statoids <- na.exclude(with(statoids, setNames(HASC, ISO)))
 ```
 
+The unprojected CRS:
+
 ```{r}
 proj <- st_crs(vnm)
 ```
+
+Loading the coordinates of the Vietnamese sites:
 
 ```{r}
 vnm_sites <- "hospitals VNM.txt" %>%
@@ -83,11 +103,31 @@ vnm_sites <- "hospitals VNM.txt" %>%
   st_as_sf(coords = c("x", "y"), crs = proj)
 ```
 
+Loading the coordinates of the Indonesian sites:
+
 ```{r}
 idn_sites <- "hospitals IDN.txt" %>%
   read.table(sep = ",") %>% 
   st_as_sf(coords = c("V2", "V1"), crs = proj)
 ```
+
+Downloading the province population density for Vietnam:
+
+```{r}
+vnm_table <- "https://en.wikipedia.org/wiki/Provinces_of_Vietnam#List_and_statistics" %>%
+  get_table() %>% 
+  extract2(5) %>%
+  extract(c("V1", "V6")) %>%
+  extract(-1, ) %>% 
+  setNames(c("NAME_1", "density")) %>% 
+  mutate(NAME_1 = NAME_1 %>% 
+           str_remove_all(" Province| City") %>% 
+           stringdist::amatch(vnm$NAME_1, maxDist = 10) %>% 
+           extract(vnm$NAME_1, .),
+         density  = as.numeric(str_remove(density, ",")))
+```
+
+Downloading the province population density for Indonesia:
 
 ```{r}
 idn_table <- "https://en.wikipedia.org/wiki/Provinces_of_Indonesia#Table_of_provinces" %>%
@@ -104,26 +144,16 @@ idn_table <- "https://en.wikipedia.org/wiki/Provinces_of_Indonesia#Table_of_prov
          density  = 1.134 * as.numeric(str_remove(density, ",")))
 ```
 
-```{r}
-vnm_table <- "https://en.wikipedia.org/wiki/Provinces_of_Vietnam#List_and_statistics" %>%
-  get_table() %>% 
-  extract2(5) %>%
-  extract(c("V1", "V6")) %>%
-  extract(-1, ) %>% 
-  setNames(c("NAME_1", "density")) %>% 
-  mutate(NAME_1 = NAME_1 %>% 
-           str_remove_all(" Province| City") %>% 
-           stringdist::amatch(vnm$NAME_1, maxDist = 10) %>% 
-           extract(vnm$NAME_1, .),
-         density  = as.numeric(str_remove(density, ",")))
-```
-
 ## Map
+
+Merging the province population density with the maps:
 
 ```{r}
 idn %<>% left_join(idn_table, "HASC_1")
 vnm %<>% left_join(vnm_table, "NAME_1")
 ```
+
+Retrieving the countries of Southeast Asia:
 
 ```{r}
 sea <- worldmap %>% 
@@ -131,9 +161,13 @@ sea <- worldmap %>%
   filter(! SOVEREIGNT %in% c("Sri Lanka", "Maldives", "Mauritius", "Seychelles"))
 ```
 
+The number of categories we want for the population densities:
+
 ```{r}
 nb_col <- 6
 ```
+
+Defining the colors:
 
 ```{r}
 rgb2 <- function(...) rgb(..., maxColorValue = 255)
@@ -142,19 +176,27 @@ grey <- rgb2(218, 218, 218)
 prov <- RColorBrewer::brewer.pal(nb_col, "YlOrRd")
 ```
 
+Defining the breaks of the categories of the population densities:
+
 ```{r}
 # breaks <- quantile(c(idn$density, vnm$density), seq(0, 1, le = nb_col + 1))
 breaks <- c(0, 80, 120, 215, 400, 900, 15000)
 ```
+
+Adding the color vector to the map objects:
 
 ```{r}
 vnm %<>% mutate(color = prov[discretize(density, breaks)])
 idn %<>% mutate(color = prov[discretize(density, breaks)])
 ```
 
+The bounding box of Southeast Asia:
+
 ```{r}
 bb <- st_bbox(sea)
 ```
+
+The figure of the map separated in successive layers:
 
 ```{r fig.width = 7.739583}
 lwd <- .1
@@ -185,6 +227,8 @@ plot(idn_sites, col = "darkgreen", add = TRUE)
 
 box(bty = "o")
 ```
+
+The figure of the color scale:
 
 ```{r fig.width = 2.458333}
 image(t(matrix(length(prov):1)), col = prov, axes = FALSE)
