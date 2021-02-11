@@ -235,3 +235,16 @@ image(t(matrix(length(prov):1)), col = prov, axes = FALSE)
 box(bty = "o")
 ```
 
+## A map for Vietnam only:
+
+```{r}
+cex_val <- 2
+
+vnm %>% 
+  st_geometry() %>% 
+  plot(col = prov[discretize(vnm$density, quantile(vnm$density, seq(0, 1, le = nb_col + 1)))])
+
+plot(vnm_sites, col = adjustcolor("green", .7), pch = 19, cex = cex_val, add = TRUE)
+plot(vnm_sites, col = "darkgreen", cex = cex_val, add = TRUE)
+```
+
