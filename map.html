@@ -422,9 +422,6 @@ download.file(&quot;https://biogeo.ucdavis.edu/data/gadm3.6/Rsf/gadm36_IDN_1_sf.
 <pre class="r"><code>vnm &lt;- readRDS(&quot;gadm36_VNM_1_sf.rds&quot;)
 idn &lt;- readRDS(&quot;gadm36_IDN_1_sf.rds&quot;)</code></pre>
 <pre class="r"><code>worldmap &lt;- st_as_sf(rworldmap::getMap(resolution = &quot;low&quot;))</code></pre>
-<pre class="r"><code>#statoids &lt;- &quot;indonesia_codes.txt&quot; %&gt;%
-#  read.table(TRUE, &quot;\t&quot;) %$%
-#  setNames(HASC, ISO)</code></pre>
 <pre class="r"><code>statoids &lt;- XML::readHTMLTable(&quot;http://www.statoids.com/uid.html&quot;)[[2]]
 names(statoids) &lt;- trimws(names(statoids))
 statoids &lt;- na.exclude(with(statoids, setNames(HASC, ISO)))</code></pre>
@@ -457,12 +454,10 @@ statoids &lt;- na.exclude(with(statoids, setNames(HASC, ISO)))</code></pre>
   extract(c(&quot;V1&quot;, &quot;V6&quot;)) %&gt;%
   extract(-1, ) %&gt;% 
   setNames(c(&quot;NAME_1&quot;, &quot;density&quot;)) %&gt;% 
-  mutate(NAME_1 = NAME_1 %&gt;%
+  mutate(NAME_1 = NAME_1 %&gt;% 
            str_remove_all(&quot; Province| City&quot;) %&gt;% 
-           trimws() %&gt;% 
-           str_replace(&quot;n-H&quot;, &quot;n H&quot;) %&gt;% 
-           str_replace(&quot;-&quot;, &quot; - &quot;) %&gt;% 
-           str_replace(&quot;Hòa Bình&quot;, &quot;Hoà Bình&quot;),
+           stringdist::amatch(vnm$NAME_1, maxDist = 10) %&gt;% 
+           extract(vnm$NAME_1, .),
          density  = as.numeric(str_remove(density, &quot;,&quot;)))</code></pre>
 </div>
 <div id="map" class="section level2">

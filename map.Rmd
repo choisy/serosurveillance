@@ -64,12 +64,6 @@ worldmap <- st_as_sf(rworldmap::getMap(resolution = "low"))
 ```
 
 ```{r}
-#statoids <- "indonesia_codes.txt" %>%
-#  read.table(TRUE, "\t") %$%
-#  setNames(HASC, ISO)
-```
-
-```{r}
 statoids <- XML::readHTMLTable("http://www.statoids.com/uid.html")[[2]]
 names(statoids) <- trimws(names(statoids))
 statoids <- na.exclude(with(statoids, setNames(HASC, ISO)))
@@ -117,12 +111,10 @@ vnm_table <- "https://en.wikipedia.org/wiki/Provinces_of_Vietnam#List_and_statis
   extract(c("V1", "V6")) %>%
   extract(-1, ) %>% 
   setNames(c("NAME_1", "density")) %>% 
-  mutate(NAME_1 = NAME_1 %>%
+  mutate(NAME_1 = NAME_1 %>% 
            str_remove_all(" Province| City") %>% 
-           trimws() %>% 
-           str_replace("n-H", "n H") %>% 
-           str_replace("-", " - ") %>% 
-           str_replace("Hòa Bình", "Hoà Bình"),
+           stringdist::amatch(vnm$NAME_1, maxDist = 10) %>% 
+           extract(vnm$NAME_1, .),
          density  = as.numeric(str_remove(density, ",")))
 ```
 
